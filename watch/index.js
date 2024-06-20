@@ -1,11 +1,27 @@
 const express = require("express");
-
+const { getUrl } = require("./controllers/watch.controller");
+const { getAllVideos } = require("./controllers/home.controller");
+require("dotenv").config();
+const cors = require("cors");
 const app = express();
 const port = 5001;  
+
+app.use(cors({
+    allowedHeaders: ["*"],
+    origin: "*"
+}))
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
+
+app.get("/all",(req,res)=>{
+    getAllVideos(req,res)
+})
+
+app.get("/watch",(req,res)=>{
+    getUrl(req,res)
+})
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

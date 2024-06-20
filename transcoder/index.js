@@ -1,12 +1,14 @@
-const express = require("express");
+const KafkaConfig = require("./config/kafka");
+const { transcodeAndSaveToS3 } = require("./utils/transcode");
 
-const app = express();
-const port = 5002;  
 
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-});
+const kafka = new KafkaConfig()
+kafka.consume("transcode", (value) => {
+    const { fileName, title } = JSON.parse(value)
+    transcodeAndSaveToS3(fileName);
+})
+    
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+
+
+
