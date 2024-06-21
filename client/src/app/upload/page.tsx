@@ -22,7 +22,7 @@ import { Input } from "../Components/input";
 
 
         const sendReq=(path:string,formdata: FormData) =>{
-            return fetch(`http://localhost:5002/${path}`, {
+            return fetch(`http://nginx:85/${path}`, {
                 method: "POST",
                 body: formdata
             })

@@ -4,7 +4,7 @@ const { getAllVideos } = require("./controllers/home.controller");
 require("dotenv").config();
 const cors = require("cors");
 const app = express();
-const port = 5001;  
+const port = process.env.PORT||6003;  
 
 app.use(cors({
     allowedHeaders: ["*"],

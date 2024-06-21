@@ -4,6 +4,8 @@ class KafkaConfig {
        this.kafka = new Kafka({
            clientId: "wv-consumer",
            brokers: ['localhost:9092','localhost:9093','localhost:9094'],
+        // brokers:["kafka1:29092","kafka2:29092","kafka3:29092"]
+
            retry: {
             retries: 5,
             initialRetryTime: 1000,

@@ -1,4 +1,9 @@
 {
+  "name": "watch",
+  "version": "1.0.0",
+  "author": "Sundeep",
+  "description": "Watch MicroService",
+  "main": "index.js",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",
     "@aws-sdk/s3-request-presigner": "^3.598.0",
@@ -6,6 +11,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "devDependencies": {
     "prisma": "^5.15.0"

@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+  
   kafka1:
     image: confluentinc/cp-kafka
     container_name: kafka1
@@ -68,9 +69,12 @@ services:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
     depends_on:
-      - kafka1
-      - kafka2
-      - kafka3
+      kafka1:
+        condition: service_started
+      kafka2:
+        condition: service_started
+      kafka3:
+        condition: service_started
     ports:
       - 8080:8080
     environment:
@@ -78,33 +82,22 @@ services:
     volumes:
       - ./config.yaml:/etc/kafkaui/dynamic_config.yaml
 
-  rest-proxy:
-    image: confluentinc/cp-kafka-rest:6.0.0
-    depends_on:
-      - kafka1
-      - kafka2
-      - kafka3
-    ports:
-      - 8082:8082
-    hostname: rest-proxy
-    container_name: rest-proxy
-    environment:
-      KAFKA_REST_HOST_NAME: rest-proxy
-      KAFKA_REST_BOOTSTRAP_SERVERS: 'kafka1:9092,kafka2:9092,kafka3:9092'
-      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
 
   schema-registry:
     image: confluentinc/cp-schema-registry:latest
     hostname: schema-registry
     depends_on:
-      - kafka1
-      - kafka2
-      - kafka3
+      kafka1:
+        condition: service_completed_successfully
+      kafka2:
+        condition: service_completed_successfully
+      kafka3:
+        condition: service_completed_successfully
     ports:
       - "8081:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092,PLAINTEXT://kafka3:9092
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka1:29092,PLAINTEXT://kafka2:29092,PLAINTEXT://kafka3:29092
 
   postgres:
     image: postgres:latest
@@ -117,6 +110,66 @@ services:
       - "5432:5432"
     volumes:
       - "postgres:/var/lib/postgresql/data"
+
+  # ui:
+  #   container_name: ui
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "4000:4000"
+
+  transcoder:
+    container_name: transcoder
+    build:
+      context: ./transcoder
+      dockerfile: Dockerfile
+    ports:
+      - "6002:6002"
+    depends_on:
+      kafka1:
+        condition: service_started
+      kafka2:
+        condition: service_started
+      kafka3:
+        condition: service_started
+
+  # upload:
+  #   container_name: upload
+  #   build:
+  #     context: ./upload
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "6001:6001"
+  #   depends_on:
+  #     - postgres
+  #     - kafka1
+  #     - kafka2
+  #     - kafka3
+
+  # watch:
+  #   container_name: watch
+  #   build:
+  #     context: ./watch
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "6003:6003"
+  #   depends_on:
+  #     - postgres
+
+  # nginx:  
+  #   container_name: nginx
+  #   build:
+  #     context: ./nginx
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "85:85"
+  #     - "443:443"
+  #   depends_on:
+  #     - transcoder
+  #     - upload
+  #     - watch
+
 
 volumes:
   postgres:

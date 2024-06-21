@@ -4,7 +4,7 @@ const { initializeUpload, uploadChunk,CompleteUpload } = require("./controllers/
 const upload = require("multer")();
 require("dotenv").config();
 const app = express();
-const port = 5002;  
+const port = process.env.PORT||6001;  
 
 app.use(cors({
     allowedHeaders: ["*"],

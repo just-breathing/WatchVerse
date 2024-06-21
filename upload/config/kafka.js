@@ -4,6 +4,7 @@ class KafkaConfig {
        this.kafka = new Kafka({
            clientId: "wv-producer",
            brokers: ['localhost:9092','localhost:9093','localhost:9094'],
+        // brokers:["kafka1:29092","kafka2:29092","kafka3:29092"]
         })
        this.producer = this.kafka.producer()
        this.consumer = this.kafka.consumer({groupId: "Watch-Verse-uploader"})
