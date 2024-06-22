@@ -38,7 +38,7 @@ const VideoPlayer = () => {
         }
 
         useEffect(() => {
-            fetch(`http://nginx:85/watch/?key=${key}`)
+            fetch(`http://localhost:85/watch/video/?key=${key}`)
               .then((res) => res.json())
               .then((resJson) => {
                 appnedSrc(resJson.url);

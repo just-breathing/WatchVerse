@@ -2,12 +2,12 @@ import { redirect } from 'next/navigation'
 import RedirectDiv from './Components/redirectDiv';
 
 async function getData() {
-  const data=await fetch("http://localhost:5001/all", {
+  const data=await fetch("http://localhost:85/watch/all", {
     method: "GET",
-    cache: "no-cache",
     next: { revalidate: 0 },
   })
   const res = await data.json();
+  console.log(`res : ${res}`);
   return res;
 }
 

@@ -21,7 +21,9 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
-      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+    volumes:
+      - kafkaData1:/var/lib/kafka/data
 
   kafka2:
     image: confluentinc/cp-kafka
@@ -42,7 +44,9 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
-      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+    volumes:
+      - kafkaData2:/var/lib/kafka/data
 
   kafka3:
     image: confluentinc/cp-kafka
@@ -63,7 +67,10 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
-      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+    volumes:
+      - kafkaData3:/var/lib/kafka/data
+
 
   kafka-ui:
     container_name: kafka-ui
@@ -81,6 +88,29 @@ services:
       DYNAMIC_CONFIG_ENABLED: 'true'
     volumes:
       - ./config.yaml:/etc/kafkaui/dynamic_config.yaml
+  
+  kafka-init:
+    image: alpine
+    depends_on:
+      - kafka-ui
+    entrypoint: >
+      sh -c "
+        apk add --no-cache curl;
+        echo 'Waiting for Kafka UI to be ready...'; 
+        while ! nc -z kafka-ui 8080; do 
+          sleep 1; 
+        done;
+        echo 'Kafka UI is up! Creating topic...';
+        curl -X POST http://kafka-ui:8080/api/clusters/kafka%20Cluster/topics \
+          -H 'Content-Type: application/json' \
+          -d '{
+                \"name\": \"test-topic\",
+                \"partitions\": 1,
+                \"replicationFactor\": 3
+              }';
+        echo 'Topic created!';
+      "
+    
 
 
   schema-registry:
@@ -102,6 +132,7 @@ services:
   postgres:
     image: postgres:latest
     container_name: postgres
+    hostname: postgres
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: adminpwd
@@ -111,15 +142,9 @@ services:
     volumes:
       - "postgres:/var/lib/postgresql/data"
 
-  # ui:
-  #   container_name: ui
-  #   build:
-  #     context: ./client
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "4000:4000"
 
   transcoder:
+    hostname: transcoder
     container_name: transcoder
     build:
       context: ./transcoder
@@ -127,50 +152,55 @@ services:
     ports:
       - "6002:6002"
     depends_on:
-      kafka1:
-        condition: service_started
-      kafka2:
-        condition: service_started
-      kafka3:
-        condition: service_started
+      kafka-init:
+        condition: service_completed_successfully
 
-  # upload:
-  #   container_name: upload
-  #   build:
-  #     context: ./upload
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "6001:6001"
-  #   depends_on:
-  #     - postgres
-  #     - kafka1
-  #     - kafka2
-  #     - kafka3
+  upload:
+    hostname: upload
+    container_name: upload
+    build:
+      context: ./upload
+      dockerfile: Dockerfile
+    ports:
+      - "6001:6001"
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
 
-  # watch:
-  #   container_name: watch
-  #   build:
-  #     context: ./watch
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "6003:6003"
-  #   depends_on:
-  #     - postgres
+  watch:
+    hostname: watch
+    container_name: watch
+    build:
+      context: ./watch
+      dockerfile: Dockerfile
+    ports:
+      - "6003:6003"
+    depends_on:
+      - postgres
 
-  # nginx:  
-  #   container_name: nginx
-  #   build:
-  #     context: ./nginx
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "85:85"
-  #     - "443:443"
-  #   depends_on:
-  #     - transcoder
-  #     - upload
-  #     - watch
+  nginx:  
+    hostname: nginx
+    container_name: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "85:85"
+      - "443:443"
+    depends_on:
+      watch:
+        condition: service_started
+      upload:
+        condition: service_started
+      
 
 
 volumes:
   postgres:
+    driver: local
+  kafkaData1:
+    driver: local
+  kafkaData2:
+    driver: local
+  kafkaData3:
     driver: local

@@ -6,14 +6,19 @@ COPY package.json ./
 
 RUN npm install
 
+#Run prisma migration
+RUN npm install @prisma/client
+RUN npm install prisma --save-dev
+
+
 COPY . .    
 
-#Run prisma migration
-RUN npx prisma migrate dev --name init
-
-#Run prisma generate
-RUN npx prisma generate
+RUN chmod +x /app/startup.sh
 
 EXPOSE 6001
 
-CMD ["npm", "start"]
+
+# Run the startup script
+CMD ["/bin/sh", "/app/startup.sh"]
+
+

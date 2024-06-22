@@ -12,14 +12,16 @@ app.use(cors({
 }))
 
 app.get("/", (req, res) => {
-    res.send("Hello World!");
+    res.sendJson({
+        message: "Hello World!",
+    });
 });
 
 app.get("/all",(req,res)=>{
     getAllVideos(req,res)
 })
 
-app.get("/watch",(req,res)=>{
+app.get("/video",(req,res)=>{
     getUrl(req,res)
 })
 
