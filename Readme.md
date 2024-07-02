@@ -8,7 +8,13 @@
 
 
 # to run locally
-- 
+- to start UI ```npm run dev```
+
+## With Docker
+- rum ```bash docker compose up```
+- if transcoder service is failing restart kafka and transcoder service containers
+    ```bash docker restart kafka1 kafka2 kafka3 transcoder```
+## With out Docker
 - first pull this repo and  run ```bash docker compose up```
 - install dependencies in each service ```bash npm i ```
 - add .env file to upload, watch and transcoder folders
@@ -21,4 +27,4 @@
     DATABASE_URL = <postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public> 
     ```
 - start individual services such as upload, watch and transcoder just go into each folder and in a different terminal enter ```run node index ```
-- to start UI ```npm run dev```
+

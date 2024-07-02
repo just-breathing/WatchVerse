@@ -38,7 +38,20 @@ const VideoPlayer = () => {
         }
 
         useEffect(() => {
-            fetch(`http://localhost:85/watch/video/?key=${key}`)
+            const video = videoRef.current;
+            if (video) {
+                video.style.width = '80vw';
+                video.style.height = '80vh';
+                video.style.position = 'absolute';
+                video.style.top = '70px';
+                video.style.left = '0';
+                video.style.zIndex = '-1';  
+                video.style.objectFit = 'contain';
+                video.style.objectPosition = 'center ';
+                video.style.transform= 'scale(1,1)';
+                video.style.margin = '10px 10px';
+            }
+            fetch(`${process.env.API}/watch/video/?key=${key}`)
               .then((res) => res.json())
               .then((resJson) => {
                 appnedSrc(resJson.url);

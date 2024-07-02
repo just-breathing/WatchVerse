@@ -2,8 +2,8 @@ type props={
     type: string
     name: string
     placeholder: string
-    value: string
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+    value?: string
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 export const Input: React.FC<props> = (props) => {

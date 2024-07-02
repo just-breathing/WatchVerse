@@ -91,9 +91,9 @@ import { Input } from "../Components/input";
     }
 
     return (    
-        <div className="text-center w-[100vw] h-[100vh] bg-white text-black  " >
-            <div className="flex flex-col place-items-center gap-2 w-[100vw] h-[100vh] m-auto  " >
-                <h1>Upload Video</h1>
+        <div className="text-center w-[100vw] h-[100vh] bg-white text-black m-auto " >
+            <div className="flex flex-col place-items-center gap-2 w-[100vw] h-[100vh] my-auto  -translate-y-[-15vh] " >
+                <h1 className="text-2xl" >Upload Video</h1>
                 <Input type="text" placeholder="Video Title" value={formData.title} name="title" onChange={handleChange} />
                 <Input type="text" placeholder="Video Description" value={formData.description} name="description" onChange={handleChange} />
                 <Input type="text" placeholder=" Author" value={formData.author} name="author" onChange={handleChange} />
